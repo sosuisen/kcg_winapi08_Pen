@@ -58,8 +58,6 @@ LRESULT CALLBACK WndProc(
 {
     static HBITMAP  hBitmap;    // ビットマップ
     static HDC      hMemDC;     // オフスクリーン
-    static HPEN     hpen;
-    static HBRUSH   hbr;
 
     HDC hdc;
 
@@ -70,29 +68,55 @@ LRESULT CALLBACK WndProc(
         hMemDC = CreateCompatibleDC(hdc);
         hBitmap = CreateCompatibleBitmap(hdc, WIN_WIDTH, WIN_HEIGHT);
         SelectObject(hMemDC, hBitmap);
-        // オフスクリーンを白で塗りつぶす（デフォルトは黒）
-        PatBlt(hMemDC, 0, 0, WIN_WIDTH, WIN_HEIGHT, WHITENESS);
+
+        HBRUSH hBgBrush = CreateSolidBrush(RGB(0xff, 0xdf, 0x00));
+        RECT rc = { 0, 0, WIN_WIDTH, WIN_HEIGHT };
+        FillRect(hMemDC, &rc, hBgBrush);
 
         // ペンとブラシを作成
-        hpen = CreatePen(PS_SOLID, 5, RGB(0x00, 0x7f, 0xff));
-        hbr = CreateSolidBrush(RGB(0xff, 0xbf, 0x00));
+        HPEN hPen = CreatePen(PS_SOLID, 3, RGB(0x00, 0x90, 0x00));
+        // HPEN hPen = CreatePen(PS_DASH, 1, RGB(0x00, 0x90, 0x00));
+        // HPEN hPen = (HPEN)GetStockObject(BLACK_PEN);
+
+        HBRUSH hSolidBrush = CreateSolidBrush(RGB(0xff, 0x00, 0x00));
+        HBRUSH hHatchBrush1 = CreateHatchBrush(
+            HS_BDIAGONAL,
+            RGB(0xff, 0x00, 0x00)
+        );
+        HBRUSH hHatchBrush2 = CreateHatchBrush(
+            HS_FDIAGONAL,
+            RGB(0xff, 0x00, 0x00)
+        );
+        HBRUSH hStockBrush = (HBRUSH)GetStockObject(GRAY_BRUSH);
 
         // ペンとブラシを選択
-        SelectObject(hMemDC, hpen);
-        SelectObject(hMemDC, hbr);
-
+        SelectObject(hMemDC, hPen);
+        SelectObject(hMemDC, hHatchBrush1);
+        
         // オフスクリーンへ描画
         Rectangle(hMemDC, 50, 50, 200, 150);
+
+        // 背景モード変更
+        SetBkMode(hMemDC, TRANSPARENT);
+        // ブラシ変更
+        SelectObject(hMemDC, hHatchBrush2);
+        Rectangle(hMemDC, 100, 100, 250, 200);
+
+
+        Ellipse(hMemDC, 315, 230, 385, 300);
+        Ellipse(hMemDC, 300, 300, 400, 400);
+
+
+        // ストックオブジェクト以外は解放
+        DeleteObject(hPen);
+        DeleteObject(hSolidBrush);
+        DeleteObject(hHatchBrush1);
+        DeleteObject(hHatchBrush2);
+
 
         ReleaseDC(hwnd, hdc);
         return 0;
     }
-    case WM_CLOSE:
-        // オフスクリーンの破棄
-        DeleteDC(hMemDC);
-        DeleteObject(hBitmap);
-        DestroyWindow(hwnd);
-        return 0;
     case WM_PAINT:
         PAINTSTRUCT paint;
         hdc = BeginPaint(hwnd, &paint);
@@ -110,6 +134,10 @@ LRESULT CALLBACK WndProc(
         EndPaint(hwnd, &paint);
         return 0;
     case WM_DESTROY:
+        // オフスクリーンの破棄
+        DeleteDC(hMemDC);
+        DeleteObject(hBitmap);
+
         PostQuitMessage(0);
         return 0;
     }
