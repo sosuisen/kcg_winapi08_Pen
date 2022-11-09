@@ -113,20 +113,20 @@ LRESULT CALLBACK WndProc(
 
         // Polygon
         POINT po[8];
-        po[0].x = 10;	po[0].y = 50;
-        po[1].x = 150;	po[1].y = 50;
+        po[0].x = 10;	po[0].y = 70;
+        po[1].x = 120;	po[1].y = 50;
         po[2].x = 150;	po[2].y = 150;
-        po[3].x = 50;	po[3].y = 150;
-        po[4].x = 50;	po[4].y = 10;
-        po[5].x = 200;	po[5].y = 10;
+        po[3].x = 60;	po[3].y = 130;
+        po[4].x = 60;	po[4].y = 10;
+        po[5].x = 180;	po[5].y = 10;
         po[6].x = 200;	po[6].y = 125;
-        po[7].x = 10;	po[7].y = 125;
+
         SetPolyFillMode(hMemDC, ALTERNATE);
         // SetPolyFillMode(hMemDC, WINDING);
-        Polygon(hMemDC, po, 8);
+        Polygon(hMemDC, po, 7);
 
         // Pie
-        Pie(hMemDC, 210, 10, 400, 200, 0, 100, 310, 0);
+        Pie(hMemDC, 220, 10, 400, 190, 220, 100, 310, 10);
         
         //--------------------
         // 以下、半透明描画
