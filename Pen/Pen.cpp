@@ -75,7 +75,7 @@ LRESULT CALLBACK WndProc(
         FillRect(hMemDC, &rc, hBgBrush);
         DeleteObject(hBgBrush);
 
-        /* 
+
         // ペンとブラシを作成
         HPEN hDashPen = CreatePen(PS_DASH, 1, RGB(0x00, 0x00, 0x00));
         HPEN hSolidPen = CreatePen(PS_SOLID, 3, RGB(0x90, 0x00, 0x00));
@@ -97,7 +97,7 @@ LRESULT CALLBACK WndProc(
         SelectObject(hMemDC, hHatchBrush1);
         
         // オフスクリーンへ描画
-        Rectangle(hMemDC, 50, 50, 200, 150);
+//        Rectangle(hMemDC, 50, 50, 200, 150);
 
         // 背景モード変更
         SetBkMode(hMemDC, TRANSPARENT);
@@ -108,9 +108,25 @@ LRESULT CALLBACK WndProc(
         // Rectangle(hMemDC, 100, 100, 250, 200);
 
         SelectObject(hMemDC, hSolidBrush);
-        // Ellipse(hMemDC, 315, 230, 385, 300);
-        // Ellipse(hMemDC, 300, 300, 400, 400);
+        Ellipse(hMemDC, 315, 230, 385, 300);
+        Ellipse(hMemDC, 300, 300, 400, 400);
 
+        // Polygon
+        POINT po[8];
+        po[0].x = 10;	po[0].y = 50;
+        po[1].x = 150;	po[1].y = 50;
+        po[2].x = 150;	po[2].y = 150;
+        po[3].x = 50;	po[3].y = 150;
+        po[4].x = 50;	po[4].y = 10;
+        po[5].x = 200;	po[5].y = 10;
+        po[6].x = 200;	po[6].y = 125;
+        po[7].x = 10;	po[7].y = 125;
+        SetPolyFillMode(hMemDC, ALTERNATE);
+        // SetPolyFillMode(hMemDC, WINDING);
+        Polygon(hMemDC, po, 8);
+
+        // Pie
+        Pie(hMemDC, 210, 10, 400, 200, 0, 100, 310, 0);
         
         //--------------------
         // 以下、半透明描画
@@ -145,8 +161,7 @@ LRESULT CALLBACK WndProc(
         DeleteObject(hSolidBrush);
         DeleteObject(hHatchBrush1);
         DeleteObject(hHatchBrush2);
-        */
-
+        
 
         ReleaseDC(hwnd, hdc);
         return 0;
