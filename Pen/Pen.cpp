@@ -1,6 +1,4 @@
 ﻿#include <windows.h>
-#include <windowsx.h> // GET_X_LPARAN, GET_Y_LPARAMマクロの定義
-#include <string>
 
 static const int WIN_WIDTH = 800;
 static const int WIN_HEIGHT = 600;
@@ -66,19 +64,24 @@ LRESULT CALLBACK WndProc(
         // オフスクリーンをメモリデバイスコンテキストを用いて作成
         hdc = GetDC(hwnd);
         hMemDC = CreateCompatibleDC(hdc);
+        // オフスクリーンのサイズは簡単のため固定値。
+        // 本当はウィンドウリサイズ時にオフスクリーンのサイズも変わるべき。
         hBitmap = CreateCompatibleBitmap(hdc, WIN_WIDTH, WIN_HEIGHT);
         SelectObject(hMemDC, hBitmap);
 
-        HBRUSH hBgBrush = CreateSolidBrush(RGB(0xff, 0xdf, 0x00));
+        // HBRUSH hBgBrush = CreateSolidBrush(RGB(0xff, 0xdf, 0x00));
+        HBRUSH hBgBrush = CreateSolidBrush(RGB(255, 223, 0));
         RECT rc = { 0, 0, WIN_WIDTH, WIN_HEIGHT };
         FillRect(hMemDC, &rc, hBgBrush);
+        DeleteObject(hBgBrush);
 
+        /* 
         // ペンとブラシを作成
-        HPEN hPen = CreatePen(PS_SOLID, 3, RGB(0x00, 0x90, 0x00));
-        // HPEN hPen = CreatePen(PS_DASH, 1, RGB(0x00, 0x90, 0x00));
-        // HPEN hPen = (HPEN)GetStockObject(BLACK_PEN);
+        HPEN hDashPen = CreatePen(PS_DASH, 1, RGB(0x00, 0x00, 0x00));
+        HPEN hSolidPen = CreatePen(PS_SOLID, 3, RGB(0x90, 0x00, 0x00));
+        HPEN hStockPen = (HPEN)GetStockObject(BLACK_PEN);
 
-        HBRUSH hSolidBrush = CreateSolidBrush(RGB(0xff, 0x00, 0x00));
+        HBRUSH hSolidBrush = CreateSolidBrush(RGB(0x90, 0xc0, 0xff));
         HBRUSH hHatchBrush1 = CreateHatchBrush(
             HS_BDIAGONAL,
             RGB(0xff, 0x00, 0x00)
@@ -88,9 +91,9 @@ LRESULT CALLBACK WndProc(
             RGB(0xff, 0x00, 0x00)
         );
         HBRUSH hStockBrush = (HBRUSH)GetStockObject(GRAY_BRUSH);
-
+        
         // ペンとブラシを選択
-        SelectObject(hMemDC, hPen);
+        SelectObject(hMemDC, hDashPen);
         SelectObject(hMemDC, hHatchBrush1);
         
         // オフスクリーンへ描画
@@ -98,20 +101,51 @@ LRESULT CALLBACK WndProc(
 
         // 背景モード変更
         SetBkMode(hMemDC, TRANSPARENT);
+        // ペン変更
+        SelectObject(hMemDC, hSolidPen);
         // ブラシ変更
         SelectObject(hMemDC, hHatchBrush2);
-        Rectangle(hMemDC, 100, 100, 250, 200);
+        // Rectangle(hMemDC, 100, 100, 250, 200);
 
+        SelectObject(hMemDC, hSolidBrush);
+        // Ellipse(hMemDC, 315, 230, 385, 300);
+        // Ellipse(hMemDC, 300, 300, 400, 400);
 
-        Ellipse(hMemDC, 315, 230, 385, 300);
-        Ellipse(hMemDC, 300, 300, 400, 400);
+        
+        //--------------------
+        // 以下、半透明描画
+        //--------------------
+        // 半透明処理用のオフスクリーン hMemAlphaDC を作成
+        HDC hMemAlphaDC = CreateCompatibleDC(hdc);
+        HBITMAP hBitmapAlpha = CreateCompatibleBitmap(hdc, WIN_WIDTH, WIN_HEIGHT);
+        SelectObject(hMemAlphaDC, hBitmapAlpha);
+        // 水色で塗りつぶす
+        FillRect(hMemAlphaDC, &rc, hSolidBrush);
+        // 図形描画
+        SelectObject(hMemDC, hSolidPen);
+        HBRUSH hSolidBrush2 = CreateSolidBrush(RGB(0x90, 0xff, 0x90));
+        SelectObject(hMemAlphaDC, hSolidBrush2);
+        Ellipse(hMemAlphaDC, 30, 30, 100, 100);
+
+        // オフスクリーンhMemDCに対して、hMemAlphaDC を半透明にして合成
+        BLENDFUNCTION fn = { 0 };
+        fn.BlendOp = AC_SRC_OVER;
+        fn.SourceConstantAlpha = 128; // 0から255までの値。小さいほど透明度が高い。
+        // GdiAlphaBlend(hMemDC, 30, 30, 100, 100, hMemAlphaDC, 30, 30, 100, 100, fn);
+
+        // 半透明処理に用いたメモリを解放
+        DeleteObject(hSolidBrush2);
+        DeleteDC(hMemAlphaDC);
+        DeleteObject(hBitmapAlpha);
 
 
         // ストックオブジェクト以外は解放
-        DeleteObject(hPen);
+        DeleteObject(hDashPen);
+        DeleteObject(hSolidPen);
         DeleteObject(hSolidBrush);
         DeleteObject(hHatchBrush1);
         DeleteObject(hHatchBrush2);
+        */
 
 
         ReleaseDC(hwnd, hdc);
